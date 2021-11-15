@@ -1,0 +1,9 @@
+C:\Users\ADMINMINSPORT\Documents\GitHub\Below\.mono\temp\obj\Debug\Below.csproj.AssemblyReference.cache
+C:\Users\ADMINMINSPORT\Documents\GitHub\Below\.mono\temp\obj\Debug\Below.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\ADMINMINSPORT\Documents\GitHub\Below\.mono\temp\obj\Debug\Below.AssemblyInfoInputs.cache
+C:\Users\ADMINMINSPORT\Documents\GitHub\Below\.mono\temp\obj\Debug\Below.AssemblyInfo.cs
+C:\Users\ADMINMINSPORT\Documents\GitHub\Below\.mono\temp\obj\Debug\Below.csproj.CoreCompileInputs.cache
+C:\Users\ADMINMINSPORT\Documents\GitHub\Below\.mono\temp\bin\Debug\Below.dll
+C:\Users\ADMINMINSPORT\Documents\GitHub\Below\.mono\temp\bin\Debug\Below.pdb
+C:\Users\ADMINMINSPORT\Documents\GitHub\Below\.mono\temp\obj\Debug\Below.dll
+C:\Users\ADMINMINSPORT\Documents\GitHub\Below\.mono\temp\obj\Debug\Below.pdb

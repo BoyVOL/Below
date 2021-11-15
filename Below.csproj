@@ -1,0 +1,11 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Godot.NET.Sdk/3.3.0">
+  <PropertyGroup>
+    <TargetFramework>net472</TargetFramework>
+    <RootNamespace>Below</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <Content Include="Scripts\GroundMap.cs" />
+    <Content Include="TestScene.cs" />
+  </ItemGroup>
+</Project>
