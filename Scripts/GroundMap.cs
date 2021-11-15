@@ -5,8 +5,41 @@ using System.IO;
 
 namespace GroundMap{
 
+    [Serializable()]
+    /// <summary>
+    /// Структура данных об ячейке
+    /// </summary>
     public struct MapCell{
-        public int TileID;
+
+        /// <summary>
+        /// Идентификатор, какой айди должен быть для отрисовки данной ячейки
+        /// </summary>
+        public byte TileID;
+        
+        public MapCell(byte[] data){
+            TileID = data[0];
+        }
+
+        public byte[] ToByte(){
+            byte[] Result = new byte[1];
+            Result[0] = TileID;
+            return Result;
+        }
+
+        public int ByteLength(){
+            return ToByte().Length;
+        }
+    }
+
+    /// <summary>
+    /// Структура, отвечающая за расположение сектора на глобальной карте
+    /// </summary>
+    public struct SectorCoords{
+
+        public int x;
+
+        public int y;
+
     }
 
     /// <summary>
@@ -32,37 +65,78 @@ namespace GroundMap{
         }
     }
 
-    public class MapSerialiser{
-        
-        BinaryFormatter Formatter = new BinaryFormatter();
-
-        MemoryStream stream;
-        public Byte[] Serialise(MapCell[,] cells){
-            stream = new MemoryStream();
-            Formatter.Serialize(stream,cells);
-            return stream.ToArray();
-        }
-
-        public MapCell[,] Deserialise(Byte[] Data){
-            stream = new MemoryStream(Data);
-            return (MapCell[,])Formatter.Deserialize(stream);
-        }
-    }
-
     /// <summary>
     /// Класс для создания и сохранения глобальной карты
     /// </summary>
-    public class GlobalMap{
+    public class CellMapFile{
+
+        FileStream File = null;
+
+        public readonly int SectorSize;
+
+        public readonly int SectorByteSize;
+
+        public readonly int CellByteLength;
+
+        public CellMapFile(int sectorSize){
+            SectorSize = sectorSize;
+            MapCell[,] Temp = new MapCell[sectorSize,sectorSize];
+            CellByteLength = new MapCell().ByteLength();
+            SectorByteSize = Temp.Length*CellByteLength;
+        }
+
+        public void OpenFile(string Filepath){
+            File = new FileStream(Filepath,FileMode.OpenOrCreate, 
+            FileAccess.ReadWrite, FileShare.None);
+        }
+
+        public void ReloadFile(string Filepath){
+            File = new FileStream(Filepath,FileMode.CreateNew, 
+            FileAccess.ReadWrite, FileShare.None);
+        }
 
         /// <summary>
-        /// Поле, содержащее, куда надо подгружать карту
+        /// Метод для чтения секторов из файла
         /// </summary>
-        public Node2D Parent = null;
+        /// <returns></returns>
+        public MapCell[,] ReadSector(){
+            byte[] Temp = new byte[CellByteLength];
+            MapCell[,] Result = new MapCell[SectorSize,SectorSize];
+            int Pointer = 0;
+            File.Seek(Pointer,SeekOrigin.Begin);
+            for (int i = 0; i < SectorSize; i++)
+            {
+                for (int j = 0; j < SectorSize; j++)
+                {
+                    Pointer += File.Read(Temp,0,CellByteLength);
+                    Result[i,j] = new MapCell(Temp);
+                }
+            }
+            return Result;
+        }
 
         /// <summary>
-        /// Поле, содержащее глобальный тайлсет для карты
+        /// Метод для записи секторов в файл
         /// </summary>
-        public TileSet Set = null;
+        /// <param name="sector"></param>
+        public void WriteSector(MapCell[,] sector){
+            byte[] Temp = new byte[CellByteLength];
+            int Pointer = 0;
+            File.Seek(Pointer,SeekOrigin.Begin);
+            for (int i = 0; i < SectorSize; i++)
+            {
+                for (int j = 0; j < SectorSize; j++)
+                {
+                    Temp = sector[i,j].ToByte();
+                    File.Write(Temp,0,CellByteLength);
+                    Pointer+=CellByteLength;
+                }
+            }
+        }
+        
+        public void CloseFile(){
+            File.Close();
+        }
     }
     
     /// <summary>
