@@ -1,9 +1,8 @@
 using Godot;
 using System;
-using System.Runtime.Serialization.Formatters.Binary;
 using System.IO;
 
-namespace GroundMap{
+namespace MapSystem{
 
     [Serializable()]
     /// <summary>
@@ -15,19 +14,17 @@ namespace GroundMap{
         /// Идентификатор, какой айди должен быть для отрисовки данной ячейки
         /// </summary>
         public byte TileID;
+
+        public const int ByteLength = 1;
         
         public MapCell(byte[] data){
             TileID = data[0];
         }
 
         public byte[] ToByte(){
-            byte[] Result = new byte[1];
+            byte[] Result = new byte[ByteLength];
             Result[0] = TileID;
             return Result;
-        }
-
-        public int ByteLength(){
-            return ToByte().Length;
         }
     }
 
@@ -66,77 +63,10 @@ namespace GroundMap{
     }
 
     /// <summary>
-    /// Класс для создания и сохранения глобальной карты
+    /// Список макросекторов, на текущий момент смоделированных в игре
     /// </summary>
-    public class CellMapFile{
+    public class SectorList{
 
-        FileStream File = null;
-
-        public readonly int SectorSize;
-
-        public readonly int SectorByteSize;
-
-        public readonly int CellByteLength;
-
-        public CellMapFile(int sectorSize){
-            SectorSize = sectorSize;
-            MapCell[,] Temp = new MapCell[sectorSize,sectorSize];
-            CellByteLength = new MapCell().ByteLength();
-            SectorByteSize = Temp.Length*CellByteLength;
-        }
-
-        public void OpenFile(string Filepath){
-            File = new FileStream(Filepath,FileMode.OpenOrCreate, 
-            FileAccess.ReadWrite, FileShare.None);
-        }
-
-        public void ReloadFile(string Filepath){
-            File = new FileStream(Filepath,FileMode.CreateNew, 
-            FileAccess.ReadWrite, FileShare.None);
-        }
-
-        /// <summary>
-        /// Метод для чтения секторов из файла
-        /// </summary>
-        /// <returns></returns>
-        public MapCell[,] ReadSector(){
-            byte[] Temp = new byte[CellByteLength];
-            MapCell[,] Result = new MapCell[SectorSize,SectorSize];
-            int Pointer = 0;
-            File.Seek(Pointer,SeekOrigin.Begin);
-            for (int i = 0; i < SectorSize; i++)
-            {
-                for (int j = 0; j < SectorSize; j++)
-                {
-                    Pointer += File.Read(Temp,0,CellByteLength);
-                    Result[i,j] = new MapCell(Temp);
-                }
-            }
-            return Result;
-        }
-
-        /// <summary>
-        /// Метод для записи секторов в файл
-        /// </summary>
-        /// <param name="sector"></param>
-        public void WriteSector(MapCell[,] sector){
-            byte[] Temp = new byte[CellByteLength];
-            int Pointer = 0;
-            File.Seek(Pointer,SeekOrigin.Begin);
-            for (int i = 0; i < SectorSize; i++)
-            {
-                for (int j = 0; j < SectorSize; j++)
-                {
-                    Temp = sector[i,j].ToByte();
-                    File.Write(Temp,0,CellByteLength);
-                    Pointer+=CellByteLength;
-                }
-            }
-        }
-        
-        public void CloseFile(){
-            File.Close();
-        }
     }
     
     /// <summary>

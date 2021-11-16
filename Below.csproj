@@ -7,5 +7,6 @@
   <ItemGroup>
     <Content Include="Scripts\GroundMap.cs" />
     <Content Include="TestScene.cs" />
+    <Content Include="Scripts\FileControllers.cs" />
   </ItemGroup>
 </Project>

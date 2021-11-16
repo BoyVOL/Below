@@ -1,6 +1,6 @@
 using Godot;
 using System;
-using GroundMap;
+using MapSystem;
 
 public class TestScene : Node2D
 {
@@ -19,7 +19,7 @@ public class TestScene : Node2D
         {
             for (int j = 0; j < Size; j++)
             {
-                Result[i,j].TileID = 2;
+                Result[i,j].TileID = 34;
             }
         }
         return Result;
@@ -41,7 +41,10 @@ public class TestScene : Node2D
     public override void _Process(float delta)
     {
         GlobMap.WriteSector(CreateTestMapCell(GlobMap.SectorSize));
-        GlobMap.ReadSector();
+        GD.Print(GlobMap.ReadSector()[0,0].TileID);
+        GD.Print(GlobMap.ReadSector()[99,99].TileID);
+        GD.Print(GlobMap.ReadSector().GetLength(0));
+        GD.Print(GlobMap.ReadSector().GetLength(1));
     }
 
     public override void _ExitTree()
