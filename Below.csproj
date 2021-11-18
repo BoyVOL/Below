@@ -8,5 +8,6 @@
     <Content Include="Scripts\GroundMap.cs" />
     <Content Include="TestScene.cs" />
     <Content Include="Scripts\FileControllers.cs" />
+    <Content Include="Scripts\SectorSystem.cs" />
   </ItemGroup>
 </Project>

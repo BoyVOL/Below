@@ -11,16 +11,47 @@ public class TestScene : Node2D
 
     CellMapFile GlobMap = new CellMapFile(100);
 
+    SectorRecordsFile Sectors = new SectorRecordsFile();
+
+    SupersectorFile SupSectors = new SupersectorFile(10,10);
+
     TileSet MapTileSet = ResourceLoader.Load<TileSet>("res://TileSets/TestTileset.tres");
 
     MapCell[,] CreateTestMapCell(int Size){
+        Random Rnd = new Random();
         MapCell[,] Result = new MapCell[Size,Size];
         for (int i = 0; i < Size; i++)
         {
             for (int j = 0; j < Size; j++)
             {
-                Result[i,j].TileID = 34;
+                Result[i,j].TileID = (byte)Rnd.Next(0,30);
             }
+        }
+        return Result;
+    }
+
+    MapCell[,][,] CreateTestSupSector(int size1, int size2){
+        Random Rnd = new Random();
+         MapCell[,][,] Result = new MapCell[size1,size1][,];
+        for (int i = 0; i < size1; i++)
+        {
+            for (int j = 0; j < size1; j++)
+            {
+                Result[i,j] = CreateTestMapCell(size2);
+            }
+        }
+        return Result;
+    }
+
+    
+    SectorRecord[] CreateSectorTable(int Size){
+        Random Rnd = new Random();
+        SectorRecord[] Result = new SectorRecord[Size];
+        for (int i = 0; i < Size; i++)
+        {
+            Result[i].x = (int)Rnd.Next(0,100000);
+            Result[i].y = (int)Rnd.Next(0,100000);
+            Result[i].filePos = (int)Rnd.Next(0,100000);
         }
         return Result;
     }
@@ -32,19 +63,49 @@ public class TestScene : Node2D
     public override void _Ready()
     {
         System.IO.Directory.CreateDirectory(System.Environment.GetEnvironmentVariable("USERPROFILE")+"/AppData/Local/Below");
-        GlobMap.OpenFile(System.Environment.GetEnvironmentVariable("USERPROFILE")+"/AppData/Local/Below/Map.bin");
+        //GlobMap.OpenFile(System.Environment.GetEnvironmentVariable("USERPROFILE")+"/AppData/Local/Below/Map.bin");
+        Sectors.OpenFile(System.Environment.GetEnvironmentVariable("USERPROFILE")+"/AppData/Local/Below/MapAlloc.bin");
+        SupSectors.OpenFile(System.Environment.GetEnvironmentVariable("USERPROFILE")+"/AppData/Local/Below/Map.bin");
         Map.Viewport.TileSet = MapTileSet;
         Map.Viewport.CellSize = new Vector2(10,10);
         this.AddChild(Map.Viewport);
     }
 
+    void TestSectorRW(){
+        GlobMap.WriteSector(CreateTestMapCell(GlobMap.SectorSize),0);
+        GlobMap.WriteSector(CreateTestMapCell(GlobMap.SectorSize),GlobMap.SectorByteSize);
+        GD.Print(GlobMap.ReadSector(GlobMap.SectorByteSize)[0,0].TileID);
+        GD.Print(GlobMap.ReadSector(GlobMap.SectorByteSize)[99,99].TileID);
+        GD.Print(GlobMap.ReadSector(GlobMap.SectorByteSize).GetLength(0));
+        GD.Print(GlobMap.ReadSector(GlobMap.SectorByteSize).GetLength(1));
+    }
+
+    void TestRecordsRW(){
+        SectorRecord[] Temp = CreateSectorTable(10000);
+        GD.Print("before = ",Temp[99].x);
+        GD.Print("before = ",Temp[99].y);
+        GD.Print("before = ",Temp[99].filePos);
+        Sectors.WriteRecords(Temp);
+        Temp = Sectors.ReadRecords();
+        GD.Print("After = ",Temp[99].x);
+        GD.Print("After = ",Temp[99].y);
+        GD.Print("After = ",Temp[99].filePos);
+    }
+
+    void TestSupSectors(){
+        MapCell[,][,] Temp = CreateTestSupSector(10,10);
+        GD.Print("SupSec before = ",Temp[0,0][0,0].TileID);
+        GD.Print("SupSec before = ",Temp[9,9][9,9].TileID);
+        SupSectors.WriteSupersector(Temp,0);
+        Temp = SupSectors.ReadSupersector(0);
+        GD.Print("SupSec after = ",Temp[0,0][0,0].TileID);
+        GD.Print("SupSec after = ",Temp[9,9][9,9].TileID);
+    }
+
     public override void _Process(float delta)
     {
-        GlobMap.WriteSector(CreateTestMapCell(GlobMap.SectorSize));
-        GD.Print(GlobMap.ReadSector()[0,0].TileID);
-        GD.Print(GlobMap.ReadSector()[99,99].TileID);
-        GD.Print(GlobMap.ReadSector().GetLength(0));
-        GD.Print(GlobMap.ReadSector().GetLength(1));
+        TestSupSectors();
+        TestRecordsRW();
     }
 
     public override void _ExitTree()
