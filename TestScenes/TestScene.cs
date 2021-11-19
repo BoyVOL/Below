@@ -64,11 +64,13 @@ public class TestScene : Node2D
     {
         System.IO.Directory.CreateDirectory(System.Environment.GetEnvironmentVariable("USERPROFILE")+"/AppData/Local/Below");
         //GlobMap.OpenFile(System.Environment.GetEnvironmentVariable("USERPROFILE")+"/AppData/Local/Below/Map.bin");
-        Sectors.OpenFile(System.Environment.GetEnvironmentVariable("USERPROFILE")+"/AppData/Local/Below/MapAlloc.bin");
-        SupSectors.OpenFile(System.Environment.GetEnvironmentVariable("USERPROFILE")+"/AppData/Local/Below/Map.bin");
-        Map.Viewport.TileSet = MapTileSet;
-        Map.Viewport.CellSize = new Vector2(10,10);
-        this.AddChild(Map.Viewport);
+        Sectors.FilePath = System.Environment.GetEnvironmentVariable("USERPROFILE")+"/AppData/Local/Below/MapAlloc.bin";
+        Sectors.OpenFile();
+        SupSectors.FilePath = System.Environment.GetEnvironmentVariable("USERPROFILE")+"/AppData/Local/Below/Map.bin";
+        SupSectors.OpenFile();
+        Map.Map.TileSet = MapTileSet;
+        Map.Map.CellSize = new Vector2(10,10);
+        this.AddChild(Map.Map);
     }
 
     void TestSectorRW(){

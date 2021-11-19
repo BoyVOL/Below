@@ -1,5 +1,4 @@
 using Godot;
-using System;
 using System.IO;
 
 namespace MapSystem{
@@ -9,7 +8,7 @@ namespace MapSystem{
     /// </summary>
     public class ByteFile{
 
-        byte[] Buffer;
+        public string FilePath = "";
 
         protected FileStream File = null;
 
@@ -17,8 +16,8 @@ namespace MapSystem{
         /// Метод, открывающий файл для чтения/записи
         /// </summary>
         /// <param name="Filepath">абсолютный путь до файла</param>
-        public void OpenFile(string Filepath){
-            File = new FileStream(Filepath,FileMode.OpenOrCreate, 
+        public void OpenFile(){
+            File = new FileStream(FilePath,FileMode.OpenOrCreate, 
             FileAccess.ReadWrite, FileShare.None);
         }
 
@@ -26,8 +25,8 @@ namespace MapSystem{
         /// Метод, пересоздающий нужный файл
         /// </summary>
         /// <param name="Filepath">абсолютный путь до файла</param>
-        public void ReloadFile(string Filepath){
-            File = new FileStream(Filepath,FileMode.CreateNew, 
+        public void ReloadFile(){
+            File = new FileStream(FilePath,FileMode.CreateNew, 
             FileAccess.ReadWrite, FileShare.None);
         }
         
@@ -127,70 +126,50 @@ namespace MapSystem{
             SupersectorSize = supersectorSize;
         }
 
+        /// <summary>
+        /// Преобразовывает координаты сектора в суперсекторе в положение сектора в файле
+        /// </summary>
+        /// <param name="x">координата x сектора</param>
+        /// <param name="y">координата y сектора</param>
+        /// <returns>индекс чтения/записи в файле</returns>
+        public int GetIDInFile(int x, int y){
+            return x*SupersectorSize+y;
+        }
+
+        /// <summary>
+        /// Записывает массив массивов клеток в файл
+        /// </summary>
+        /// <param name="data"></param>
+        /// <param name="id"></param>
         public void WriteSupersector(MapCell [,][,] data, int id){
             GetToPos(id);
             for (int i = 0; i < SupersectorSize; i++)
             { 
                 for (int j = 0; j < SupersectorSize; j++)
                 {
-                    WriteSector(data[i,j],id+i*SupersectorSize+j);
+                    WriteSector(data[i,j],id+GetIDInFile(i,j));
                 }
             }
         }
 
+        /// <summary>
+        /// Читает из файла по указанному индексу и возвращает их, преобразовав в массив массивов
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         public MapCell [,][,] ReadSupersector(int id){
             MapCell [,][,] Result = new MapCell[SupersectorSize, SupersectorSize][,];
             for (int i = 0; i < SupersectorSize; i++)
             { 
                 for (int j = 0; j < SupersectorSize; j++)
                 {
-                    Result[i,j] = ReadSector(id+i*SupersectorSize+j);
+                    Result[i,j] = ReadSector(id+GetIDInFile(i,j));
                 }
             }
             return Result;
         }
     }
 
-    /// <summary>
-    /// Структура, отвечающая за описание подгружаемых секторов
-    /// </summary>
-    public struct SectorRecord{
-        
-        /// <summary>
-        /// Координата x сектора
-        /// </summary>
-        public int x;
-
-        /// <summary>
-        /// Координата y сектора
-        /// </summary>
-        public int y;
-
-        /// <summary>
-        /// Размер записи в битах
-        /// </summary>
-        public const int ByteLength = 4+4+4;
-
-        /// <summary>
-        /// Положение сектора в файле
-        /// </summary>
-        public int filePos;
-
-        public SectorRecord(byte [] data){
-            x = BitConverter.ToInt32(data,0);
-            y = BitConverter.ToInt32(data,4);
-            filePos = BitConverter.ToInt32(data,8);
-        }
-
-        public byte[] ToByte(){
-            byte[] Result = new byte[ByteLength];
-            BitConverter.GetBytes(x).CopyTo(Result,0);
-            BitConverter.GetBytes(y).CopyTo(Result,4);
-            BitConverter.GetBytes(filePos).CopyTo(Result,8);
-            return Result;
-        }
-    }
-    
     /// <summary>
     /// Класс для записи файла с аллокацией всех секторов карты в файле
     /// </summary>

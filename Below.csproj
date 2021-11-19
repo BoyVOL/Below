@@ -9,5 +9,9 @@
     <Content Include="TestScene.cs" />
     <Content Include="Scripts\FileControllers.cs" />
     <Content Include="Scripts\SectorSystem.cs" />
+    <Content Include="Scripts\Structs.cs" />
+    <Content Include="MapFile.cs" />
+    <Content Include="TestScenes\TestScene2.cs" />
+    <Content Include="TestScenes\TestScene.cs" />
   </ItemGroup>
 </Project>

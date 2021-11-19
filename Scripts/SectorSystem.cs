@@ -1,38 +1,16 @@
 using Godot;
-using System;
-using System.IO;
+using System.Collections.Generic;
 
 namespace MapSystem{
-    /// <summary>
-    /// Структура данных об ячейке
-    /// </summary>
-    public struct MapCell{
-
-        /// <summary>
-        /// Идентификатор, какой айди должен быть для отрисовки данной ячейки
-        /// </summary>
-        public byte TileID;
-
-        public const int ByteLength = 1;
-        
-        public MapCell(byte[] data){
-            TileID = data[0];
-        }
-
-        public byte[] ToByte(){
-            byte[] Result = new byte[ByteLength];
-            Result[0] = TileID;
-            return Result;
-        }
-    }
-
     /// <summary>
     /// Класс, отвечающий за загрузку части карты в игре
     /// </summary>
     public class Sector{
-        public TileMap Viewport = new TileMap();
+        public TileMap Map = new TileMap();
 
         public MapCell[,] Cells;
+
+        Vector2 Coords;
 
         public Sector(int Size){
             Cells = new MapCell[Size,Size];
@@ -43,21 +21,71 @@ namespace MapSystem{
             {
                 for (int j = 0; j < Cells.GetLength(1); j++)
                 {
-                    Viewport.SetCell(i,j,Cells[i,j].TileID);
+                    Map.SetCell(i,j,Cells[i,j].TileID);
                 }
             }
         }
     }
 
-
-    public class Supersector{
-        
-    }
-    
     /// <summary>
-    /// Класс для генерации глобальной карты
+    /// Класс для подгрузки и управления загруженными секторами
     /// </summary>
-    public class MapGenerator{
+    public class SectorBuffer : SectorLoader{
+        public Vector2 Center;
+        public Sector[,] Buffer;
+
+                
+    }
+
+    /// <summary>
+    /// Класс для управления загрузкой секторов и их содержимого
+    /// </summary>
+    public class SectorLoader{
+        public SupersectorFile Data;
+
+        public SectorRecordsFile Records;
         
+        Dictionary<int[],int> SupersectorRecords = new Dictionary<int[], int>();
+
+        /// <summary>
+        /// Метод для получения сектора, включающего указанные координаты, из общей системы файлов
+        /// </summary>
+        /// <param name="Pos"></param>
+        /// <returns></returns>
+        public Sector GetSector(Vector2 Pos){
+            Sector Result = new Sector(Data.SectorSize);
+            return Result;
+        }
+
+        /// <summary>
+        /// Метод для загрузки словаря, содержащего соотношение индексов суперсекторов с их координатами
+        /// </summary>
+        public void LoadDictionary(){
+            SectorRecord[] Temp = Records.ReadRecords();
+            for (int i = 0; i < Temp.Length; i++)
+            {
+                SupersectorRecords.Add(new int[] {Temp[i].x,Temp[i].y},Temp[i].filePos);
+            }
+        }
+
+        public void SaveDictionary(){
+            int[][] Keys = new int[SupersectorRecords.Count][];
+            int[] Values = new int[SupersectorRecords.Count];
+            SupersectorRecords.Keys.CopyTo(Keys,0);
+            SupersectorRecords.Values.CopyTo(Values,0);
+            SectorRecord[] Temp = new SectorRecord[SupersectorRecords.Count];
+            Records.ReloadFile();
+            for (int i = 0; i < SupersectorRecords.Count; i++)
+            {
+                Temp[i].x = Keys[i][0];
+                Temp[i].y = Keys[i][1];
+                Temp[i].filePos = Values[i];
+            }
+            Records.WriteRecords(Temp);
+        }
+
+        public void SaveSector(Sector sector){
+
+        }
     }
 }
