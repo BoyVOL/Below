@@ -43,8 +43,12 @@ public class TestScene : Node2D
         return Result;
     }
 
-    
-    SectorRecord[] CreateSectorTable(int Size){
+    /// <summary>
+    /// Создаёт таблицу секторов указанного размера на основе случайных величин
+    /// </summary>
+    /// <param name="Size"></param>
+    /// <returns></returns>
+    SectorRecord[] CreateRandomSectorTable(int Size){
         Random Rnd = new Random();
         SectorRecord[] Result = new SectorRecord[Size];
         for (int i = 0; i < Size; i++)
@@ -52,6 +56,28 @@ public class TestScene : Node2D
             Result[i].x = (int)Rnd.Next(0,100000);
             Result[i].y = (int)Rnd.Next(0,100000);
             Result[i].filePos = (int)Rnd.Next(0,100000);
+        }
+        return Result;
+    }
+
+    /// <summary>
+    /// Создаёт таблицу квадрата секторов с указанной стороной
+    /// </summary>
+    /// <param name="Size"></param>
+    /// <returns></returns>
+    SectorRecord[] CreateSectorTable(int Size){
+        Random Rnd = new Random();
+        SectorRecord[] Result = new SectorRecord[Size*Size];
+        int ID = 0;
+        for (int i = 0; i < Size; i++)
+        {
+            for (int j = 0; j < Size; j++)
+            {
+                Result[ID].x = i;
+                Result[ID].y = j;
+                Result[ID].filePos = ID;
+                ID++;
+            }
         }
         return Result;
     }
@@ -83,7 +109,7 @@ public class TestScene : Node2D
     }
 
     void TestRecordsRW(){
-        SectorRecord[] Temp = CreateSectorTable(10000);
+        SectorRecord[] Temp = CreateSectorTable(1000);
         GD.Print("before = ",Temp[99].x);
         GD.Print("before = ",Temp[99].y);
         GD.Print("before = ",Temp[99].filePos);

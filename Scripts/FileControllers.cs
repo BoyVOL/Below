@@ -26,7 +26,9 @@ namespace MapSystem{
         /// </summary>
         /// <param name="Filepath">абсолютный путь до файла</param>
         public void ReloadFile(){
-            File = new FileStream(FilePath,FileMode.CreateNew, 
+            File.Close();
+            System.IO.File.WriteAllText(FilePath,string.Empty);
+            File = new FileStream(FilePath,FileMode.OpenOrCreate, 
             FileAccess.ReadWrite, FileShare.None);
         }
         
@@ -174,6 +176,11 @@ namespace MapSystem{
     /// Класс для записи файла с аллокацией всех секторов карты в файле
     /// </summary>
     public class SectorRecordsFile : ByteFile{
+
+        /// <summary>
+        /// Читает все записи из файла
+        /// </summary>
+        /// <returns></returns>
         public SectorRecord[] ReadRecords(){
             SectorRecord[] Result = new SectorRecord[File.Length / SectorRecord.ByteLength];
             byte[] Buff = new byte[SectorRecord.ByteLength];
@@ -186,8 +193,13 @@ namespace MapSystem{
             return Result;
         }
 
+        /// <summary>
+        /// полностью стирает контент файла и перезаполняет его новым массивом записей
+        /// </summary>
+        /// <param name="data"></param>
         public void WriteRecords(SectorRecord[] data){
             byte[] Buff = new byte[SectorRecord.ByteLength];
+            ReloadFile();
             GetToPos(0);
             for (int i = 0; i < data.Length; i++)
             {

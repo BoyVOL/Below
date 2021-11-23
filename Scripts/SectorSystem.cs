@@ -1,5 +1,6 @@
 using Godot;
 using System.Collections.Generic;
+using System;
 
 namespace MapSystem{
     /// <summary>
@@ -38,54 +39,95 @@ namespace MapSystem{
     }
 
     /// <summary>
-    /// Класс для управления загрузкой секторов и их содержимого
+    /// Дочерний класс словаря, отвечающий за представление секторов в файле
     /// </summary>
-    public class SectorLoader{
-        public SupersectorFile Data;
+    public class SectorDict : Dictionary<double, int>{
 
         public SectorRecordsFile Records;
-        
-        Dictionary<int[],int> SupersectorRecords = new Dictionary<int[], int>();
 
         /// <summary>
-        /// Метод для получения сектора, включающего указанные координаты, из общей системы файлов
+        /// Метод для загрузки словаря, содержащего соотношение индексов суперсекторов с их координатами в виде double
         /// </summary>
-        /// <param name="Pos"></param>
+        public void LoadDictionary(){
+            SectorRecord[] Temp = Records.ReadRecords();
+            this.Clear();
+            for (int i = 0; i < Temp.Length; i++)
+            {
+                this.Add(KeyFromPos(Temp[i].x,Temp[i].y),Temp[i].filePos);
+            }
+        }
+
+        /// <summary>
+        /// Возвращает ключ double из набора координат
+        /// </summary>
+        /// <param name="x"></param>
+        /// <param name="y"></param>
         /// <returns></returns>
-        public Sector GetSector(Vector2 Pos){
-            Sector Result = new Sector(Data.SectorSize);
+        public double KeyFromPos(int x, int y){
+            return (double)x*(double)Int32.MaxValue+y;
+        }
+
+        /// <summary>
+        /// Возвращает массив координат, полученных из ключа double
+        /// </summary>
+        /// <param name="Key"></param>
+        /// <returns></returns>
+        public int[] PosFromKey(double Key){
+            int [] Result = new int[2];
+            Result[0] = (int)((double)Key/(double)Int32.MaxValue);
+            Result[1] = (int)((double)Key%(double)Int32.MaxValue);
             return Result;
         }
 
         /// <summary>
-        /// Метод для загрузки словаря, содержащего соотношение индексов суперсекторов с их координатами
+        /// метод для сохранения всех записей в словаре в виде файла
         /// </summary>
-        public void LoadDictionary(){
-            SectorRecord[] Temp = Records.ReadRecords();
-            for (int i = 0; i < Temp.Length; i++)
-            {
-                SupersectorRecords.Add(new int[] {Temp[i].x,Temp[i].y},Temp[i].filePos);
-            }
-        }
-
         public void SaveDictionary(){
-            int[][] Keys = new int[SupersectorRecords.Count][];
-            int[] Values = new int[SupersectorRecords.Count];
-            SupersectorRecords.Keys.CopyTo(Keys,0);
-            SupersectorRecords.Values.CopyTo(Values,0);
-            SectorRecord[] Temp = new SectorRecord[SupersectorRecords.Count];
-            Records.ReloadFile();
-            for (int i = 0; i < SupersectorRecords.Count; i++)
+            double[] Keys = new double[this.Count];
+            int[] Values = new int[this.Count];
+            this.Keys.CopyTo(Keys,0);
+            this.Values.CopyTo(Values,0);
+            SectorRecord[] Temp = new SectorRecord[this.Count];
+            for (int i = 0; i < this.Count; i++)
             {
-                Temp[i].x = Keys[i][0];
-                Temp[i].y = Keys[i][1];
+                int[] TempPos = PosFromKey(Keys[i]);
+                Temp[i].x = TempPos[0];
+                Temp[i].y = TempPos[1];
                 Temp[i].filePos = Values[i];
             }
             Records.WriteRecords(Temp);
         }
+    }
 
-        public void SaveSector(Sector sector){
+    /// <summary>
+    /// Класс для управления загрузкой секторов и их содержимого
+    /// </summary>
+    public class SectorLoader{
+        public SupersectorFile Data;
+        
+        public SectorDict SuperSecDict = new SectorDict();
 
+        /// <summary>
+        /// Метод для получения сектора, левый верхний край которого содержит указанные координаты, из общей системы файлов
+        /// </summary>
+        /// <param name="Pos"></param>
+        /// <returns></returns>
+        public Sector GetSector(int[] Pos){
+            Sector Result = new Sector(Data.SectorSize);
+            GD.Print(SuperSecDict[SuperSecDict.KeyFromPos(Pos[0],Pos[1])]);
+            return Result;
+        }
+
+        /// <summary>
+        /// Метод получения координат суперсектора на основе координат сектора
+        /// </summary>
+        /// <param name="Pos">положение сектора, суперсектор которой надо определить</param>
+        /// <returns></returns>
+        public int[] SupSecCoords(int[] Pos){
+            return new int[] {
+                (int)Math.Truncate((decimal)Pos[0]/Data.SupersectorSize),
+                (int)Math.Truncate((decimal)Pos[1]/Data.SupersectorSize)
+                };
         }
     }
 }
