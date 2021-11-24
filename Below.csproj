@@ -13,5 +13,8 @@
     <Content Include="MapFile.cs" />
     <Content Include="TestScenes\TestScene2.cs" />
     <Content Include="TestScenes\TestScene.cs" />
+    <Content Include="Scripts\MapGeneration.cs" />
+    <Content Include="TestScenes\MapGeneration.cs" />
+    <Content Include="TestScenes\MapGen.cs" />
   </ItemGroup>
 </Project>

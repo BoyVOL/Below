@@ -25,11 +25,10 @@ namespace MapSystem{
         }
     }
 
-    
     /// <summary>
     /// Структура, отвечающая за описание подгружаемых секторов
     /// </summary>
-    public struct SectorRecord{
+    public struct SuperSectorRecord{
         
         /// <summary>
         /// Координата x сектора
@@ -44,24 +43,53 @@ namespace MapSystem{
         /// <summary>
         /// Размер записи в битах
         /// </summary>
-        public const int ByteLength = 4+4+4;
+        public const int ByteLength = 4+4+SuperSectorData.ByteLength;
 
         /// <summary>
         /// Положение сектора в файле
         /// </summary>
-        public int filePos;
+        public SuperSectorData Data;
 
-        public SectorRecord(byte [] data){
+        public SuperSectorRecord(byte [] data){
             x = BitConverter.ToInt32(data,0);
             y = BitConverter.ToInt32(data,4);
-            filePos = BitConverter.ToInt32(data,8);
+            byte [] Temp = new byte[SuperSectorData.ByteLength];
+            Array.Copy(data,8,Temp,0,SuperSectorData.ByteLength);
+            Data = new SuperSectorData(Temp);
         }
 
         public byte[] ToByte(){
             byte[] Result = new byte[ByteLength];
             BitConverter.GetBytes(x).CopyTo(Result,0);
             BitConverter.GetBytes(y).CopyTo(Result,4);
-            BitConverter.GetBytes(filePos).CopyTo(Result,8);
+            Data.ToByte().CopyTo(Result,8);
+            return Result;
+        }
+    }
+
+    /// <summary>
+    /// Структура, содержащая данные об индексах суперсектора
+    /// </summary>
+    public struct SuperSectorData{
+
+        /// <summary>
+        /// Размер записи в битах
+        /// </summary>
+        public const int ByteLength = 8;
+        
+
+        /// <summary>
+        /// Положение сектора в файле
+        /// </summary>
+        public long filePos;
+
+        public SuperSectorData(byte [] data){
+            filePos = BitConverter.ToInt32(data,0);
+        }
+
+        public byte[] ToByte(){
+            byte[] Result = new byte[ByteLength];
+            BitConverter.GetBytes(filePos).CopyTo(Result,0);
             return Result;
         }
     }

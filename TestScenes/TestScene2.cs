@@ -6,8 +6,9 @@ public class TestScene2 : Node2D
 {
     public void CheckCoords(int[] input){
         GD.Print(Loader.SupSecCoords(input)[0],",",Loader.SupSecCoords(input)[1]);
+        GD.Print(Loader.InSectorCoords(input)[0],",",Loader.InSectorCoords(input)[1]);
     }
-    SectorLoader Loader = new SectorLoader();
+    SectorBuffer Loader = new SectorBuffer();
 
     // Declare member variables here. Examples:
     // private int a = 2;
@@ -27,14 +28,20 @@ public class TestScene2 : Node2D
         Loader.SuperSecDict.Records = Sectors;
         CheckCoords(new int[]{1,1});
         CheckCoords(new int[]{9,9});
-        CheckCoords(new int[]{10,9});
+        CheckCoords(new int[]{10,1});
+        Loader.SuperSecDict.LoadDictionary();
     }
 
     public override void _Process(float delta)
     {
-        Loader.SuperSecDict.LoadDictionary();
-        Loader.GetSector(new int[]{0,0});
-        Loader.GetSector(new int[]{1,0});
+        GD.Print(Loader.GetSector(new int[]{0,0}).StringContent());
+        Loader.LoadBuffer();
+        GD.Print(Loader.Buffer[0,0].StringContent());
+    }
+
+    public override void _ExitTree()
+    {
+        base._ExitTree();
         Loader.SuperSecDict.SaveDictionary();
     }
 }

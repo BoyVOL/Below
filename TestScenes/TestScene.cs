@@ -48,14 +48,14 @@ public class TestScene : Node2D
     /// </summary>
     /// <param name="Size"></param>
     /// <returns></returns>
-    SectorRecord[] CreateRandomSectorTable(int Size){
+    SuperSectorRecord[] CreateRandomSectorTable(int Size){
         Random Rnd = new Random();
-        SectorRecord[] Result = new SectorRecord[Size];
+        SuperSectorRecord[] Result = new SuperSectorRecord[Size];
         for (int i = 0; i < Size; i++)
         {
             Result[i].x = (int)Rnd.Next(0,100000);
             Result[i].y = (int)Rnd.Next(0,100000);
-            Result[i].filePos = (int)Rnd.Next(0,100000);
+            Result[i].Data.filePos = (int)Rnd.Next(0,100000);
         }
         return Result;
     }
@@ -65,9 +65,9 @@ public class TestScene : Node2D
     /// </summary>
     /// <param name="Size"></param>
     /// <returns></returns>
-    SectorRecord[] CreateSectorTable(int Size){
+    SuperSectorRecord[] CreateSectorTable(int Size){
         Random Rnd = new Random();
-        SectorRecord[] Result = new SectorRecord[Size*Size];
+        SuperSectorRecord[] Result = new SuperSectorRecord[Size*Size];
         int ID = 0;
         for (int i = 0; i < Size; i++)
         {
@@ -75,7 +75,7 @@ public class TestScene : Node2D
             {
                 Result[ID].x = i;
                 Result[ID].y = j;
-                Result[ID].filePos = ID;
+                Result[ID].Data.filePos = ID;
                 ID++;
             }
         }
@@ -109,15 +109,15 @@ public class TestScene : Node2D
     }
 
     void TestRecordsRW(){
-        SectorRecord[] Temp = CreateSectorTable(1000);
+        SuperSectorRecord[] Temp = CreateSectorTable(10);
         GD.Print("before = ",Temp[99].x);
         GD.Print("before = ",Temp[99].y);
-        GD.Print("before = ",Temp[99].filePos);
+        GD.Print("before = ",Temp[99].Data.filePos);
         Sectors.WriteRecords(Temp);
         Temp = Sectors.ReadRecords();
         GD.Print("After = ",Temp[99].x);
         GD.Print("After = ",Temp[99].y);
-        GD.Print("After = ",Temp[99].filePos);
+        GD.Print("After = ",Temp[99].Data.filePos);
     }
 
     void TestSupSectors(){

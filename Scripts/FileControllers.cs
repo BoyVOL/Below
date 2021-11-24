@@ -43,12 +43,23 @@ namespace MapSystem{
         /// Перемещение курсора на нужное положение в файле
         /// </summary>
         /// <param name="pos"></param>
-        public void GetToPos(int pos){
+        public void GetToPos(long pos){
             File.Position = pos;
         }
 
+        public long CurrentPos(){
+            return File.Position;
+        }
         public bool IsEOF(){
             return File.Position >= File.Length;
+        }
+
+        /// <summary>
+        /// Возвращает общую длину файла
+        /// </summary>
+        /// <returns></returns>
+        public long GetLength(){
+            return File.Length;
         }
     }
 
@@ -71,7 +82,7 @@ namespace MapSystem{
         /// </summary>
         /// <param name="id">индекс, с которого производится чтение</param>
         /// <returns></returns>
-        public MapCell[,] ReadSector(int id){
+        public MapCell[,] ReadSector(long id){
             byte[] Temp = new byte[MapCell.ByteLength];
             MapCell[,] Result = new MapCell[SectorSize,SectorSize];
             GetToPos(id);
@@ -91,7 +102,7 @@ namespace MapSystem{
         /// </summary>
         /// <param name="sector"></param>
         /// <param name="id">Индекс, с которого идёт чтение</param>
-        public void WriteSector(MapCell[,] sector, int id){
+        public void WriteSector(MapCell[,] sector, long id){
             byte[] Temp = new byte[MapCell.ByteLength];
             GetToPos(id);
             for (int i = 0; i < SectorSize; i++)
@@ -129,13 +140,13 @@ namespace MapSystem{
         }
 
         /// <summary>
-        /// Преобразовывает координаты сектора в суперсекторе в положение сектора в файле
+        /// Преобразовывает координаты сектора в суперсекторе в смещение индекса относительно начала записи сектора в файле
         /// </summary>
         /// <param name="x">координата x сектора</param>
         /// <param name="y">координата y сектора</param>
         /// <returns>индекс чтения/записи в файле</returns>
-        public int GetIDInFile(int x, int y){
-            return x*SupersectorSize+y;
+        public long GetIDShift(int x, int y){
+            return (x*SupersectorSize+y)*SectorByteSize;
         }
 
         /// <summary>
@@ -143,13 +154,13 @@ namespace MapSystem{
         /// </summary>
         /// <param name="data"></param>
         /// <param name="id"></param>
-        public void WriteSupersector(MapCell [,][,] data, int id){
+        public void WriteSupersector(MapCell [,][,] data, long id){
             GetToPos(id);
             for (int i = 0; i < SupersectorSize; i++)
             { 
                 for (int j = 0; j < SupersectorSize; j++)
                 {
-                    WriteSector(data[i,j],id+GetIDInFile(i,j));
+                    WriteSector(data[i,j],id+GetIDShift(i,j));
                 }
             }
         }
@@ -159,13 +170,13 @@ namespace MapSystem{
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
-        public MapCell [,][,] ReadSupersector(int id){
+        public MapCell [,][,] ReadSupersector(long id){
             MapCell [,][,] Result = new MapCell[SupersectorSize, SupersectorSize][,];
             for (int i = 0; i < SupersectorSize; i++)
             { 
                 for (int j = 0; j < SupersectorSize; j++)
                 {
-                    Result[i,j] = ReadSector(id+GetIDInFile(i,j));
+                    Result[i,j] = ReadSector(id+GetIDShift(i,j));
                 }
             }
             return Result;
@@ -181,14 +192,14 @@ namespace MapSystem{
         /// Читает все записи из файла
         /// </summary>
         /// <returns></returns>
-        public SectorRecord[] ReadRecords(){
-            SectorRecord[] Result = new SectorRecord[File.Length / SectorRecord.ByteLength];
-            byte[] Buff = new byte[SectorRecord.ByteLength];
+        public SuperSectorRecord[] ReadRecords(){
+            SuperSectorRecord[] Result = new SuperSectorRecord[File.Length / SuperSectorRecord.ByteLength];
+            byte[] Buff = new byte[SuperSectorRecord.ByteLength];
             GetToPos(0);
             for (int i = 0; i < Result.Length; i++)
             {
-                File.Read(Buff,0,SectorRecord.ByteLength);
-                Result[i] = new SectorRecord(Buff);
+                File.Read(Buff,0,SuperSectorRecord.ByteLength);
+                Result[i] = new SuperSectorRecord(Buff);
             }
             return Result;
         }
@@ -197,14 +208,14 @@ namespace MapSystem{
         /// полностью стирает контент файла и перезаполняет его новым массивом записей
         /// </summary>
         /// <param name="data"></param>
-        public void WriteRecords(SectorRecord[] data){
-            byte[] Buff = new byte[SectorRecord.ByteLength];
+        public void WriteRecords(SuperSectorRecord[] data){
+            byte[] Buff = new byte[SuperSectorRecord.ByteLength];
             ReloadFile();
             GetToPos(0);
             for (int i = 0; i < data.Length; i++)
             {
                 Buff = data[i].ToByte();
-                File.Write(Buff,0,SectorRecord.ByteLength);
+                File.Write(Buff,0,SuperSectorRecord.ByteLength);
             }
         }
     }
