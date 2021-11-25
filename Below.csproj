@@ -16,5 +16,6 @@
     <Content Include="Scripts\MapGeneration.cs" />
     <Content Include="TestScenes\MapGeneration.cs" />
     <Content Include="TestScenes\MapGen.cs" />
+    <Content Include="Scripts\CollisionSystem.cs" />
   </ItemGroup>
 </Project>

@@ -30,18 +30,31 @@ public class TestScene2 : Node2D
         CheckCoords(new int[]{9,9});
         CheckCoords(new int[]{10,1});
         Loader.SuperSecDict.LoadDictionary();
+
+
+        GD.Print(Loader.GetSector(new int[]{0,0}).StringContent());
+        Loader.BufferStart = new int[] {0,0};
+        Loader.LoadBuffer();
+        Loader.Buffer[0,0].Cells[0,0].TileID=50;
+        GD.Print(Loader.Buffer[0,0].StringContent());
+        Loader.MoveRight();
+        Loader.MoveUp();
+        GD.Print(Loader.GetSector(new int[]{1,1}).StringContent());
+        GD.Print(Loader.Buffer[0,0].StringContent());
+        GD.Print(Loader.GetSector(new int[]{2,2}).StringContent());
+        GD.Print(Loader.Buffer[1,1].StringContent());
+        GD.Print(Loader.GetSector(new int[]{3,3}).StringContent());
+        GD.Print(Loader.Buffer[2,2].StringContent());
+        Loader.SaveBuffer();
     }
 
     public override void _Process(float delta)
     {
-        GD.Print(Loader.GetSector(new int[]{0,0}).StringContent());
-        Loader.LoadBuffer();
-        GD.Print(Loader.Buffer[0,0].StringContent());
     }
 
     public override void _ExitTree()
     {
-        base._ExitTree();
         Loader.SuperSecDict.SaveDictionary();
+        base._ExitTree();
     }
 }

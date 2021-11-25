@@ -49,8 +49,13 @@ namespace MapSystem{
     /// Класс для подгрузки и управления загруженными секторами
     /// </summary>
     public class SectorBuffer : SectorLoader{
-        public int[] Center = new int[] {5,5};
-        public Sector[,] Buffer = new Sector[10,10];
+        
+        /// <summary>
+        /// Начальная точка буффера - верхняя левая точка
+        /// </summary>
+        /// <value></value>
+        public int[] BufferStart = new int[] {0,0};
+        public Sector[,] Buffer = new Sector[3,3];
 
         /// <summary>
         /// Загружает буффер секторами вокруг общего центра
@@ -61,11 +66,156 @@ namespace MapSystem{
                 for (int j = 0; j < Buffer.GetLength(1); j++)
                 {
                     Buffer[i,j] = GetSector(new int[] {
-                        Center[0]-Buffer.GetLength(0)/2+i,
-                        Center[1]-Buffer.GetLength(1)/2+j
+                        BufferStart[0]+i,
+                        BufferStart[1]+j
                     });
                 }
             }
+        }
+
+        /// <summary>
+        /// Метод для сохранения всего буффера
+        /// </summary>        
+        public void SaveBuffer(){
+            for (int i = 0; i < Buffer.GetLength(0); i++)
+            {
+                for (int j = 0; j < Buffer.GetLength(1); j++)
+                {
+                    SaveSector(Buffer[i,j],new int[] {
+                        BufferStart[0]+i,
+                        BufferStart[1]+j
+                    });
+                }
+            }
+        }
+
+        /// <summary>
+        /// Загрузка колонки по указанному индексу
+        /// </summary>
+        /// <param name="colID"></param>
+        void LoadColumn(int colID){
+            for (int i = 0; i < Buffer.GetLength(1); i++)
+            {
+                Buffer[colID,i] = GetSector(new int[] {
+                    BufferStart[0]+colID,
+                    BufferStart[1]+i
+                });
+            }
+        }
+
+        void LoadRow(int rowID){
+            for (int i = 0; i < Buffer.GetLength(0); i++)
+            {
+                Buffer[i,rowID] = GetSector(new int[] {
+                    BufferStart[0]+i,
+                    BufferStart[1]+rowID
+                });
+            }
+        }
+        
+        void SaveColumn(int colID){
+            for (int i = 0; i < Buffer.GetLength(1); i++)
+            {
+                SaveSector(Buffer[colID,i],new int[] {
+                    BufferStart[0]+colID,
+                    BufferStart[1]+i
+                });
+            }
+        }
+
+        void SaveRow(int rowID){
+            for (int i = 0; i < Buffer.GetLength(1); i++)
+            {
+                SaveSector(Buffer[i,rowID],new int[] {
+                    BufferStart[0]+i,
+                    BufferStart[1]+rowID
+                });
+            }
+        }
+
+        /// <summary>
+        /// смещение указанной колонки на указанное положение
+        /// </summary>
+        /// <param name="rowID"></param>
+        /// <param name="shift"></param>
+
+        void ShiftColumn(int colID, int shift){
+            for (int i = 0; i < Buffer.GetLength(1); i++)
+            {
+                Buffer[colID+shift,i] = Buffer[colID,i];
+            }
+        }
+
+        /// <summary>
+        /// смещение указанной строки на указанное положение
+        /// </summary>
+        /// <param name="rowID"></param>
+        /// <param name="shift"></param>
+        void ShiftRow(int rowID, int shift){
+            for (int i = 0; i < Buffer.GetLength(0); i++)
+            {
+                Buffer[i,rowID+shift] = Buffer[i,rowID];
+            }
+        }
+
+        /// <summary>
+        /// Перемещение буффера в общей сетке секторов влево на один сектор
+        /// </summary>
+        public void MoveLeft(){
+            SaveColumn(Buffer.GetLength(0)-1);
+            BufferStart[0]--;
+            //Смещение всех колонок влево на 1 вправа налево
+            for (int i = Buffer.GetLength(0)-2; i >= 0; i--)
+            {
+                ShiftColumn(i,1);
+            }
+            //загрузка самой левой колонки
+            LoadColumn(0);
+        }
+
+        /// <summary>
+        /// Перемещение буффера в общей сетке секторов влево на один сектор
+        /// </summary>
+        public void MoveUp(){
+            SaveRow(0);
+            BufferStart[1]++;
+            //Смещение всех строк вправо на 1 слева направо
+            for (int i = 1; i < Buffer.GetLength(1); i++)
+            {
+                ShiftRow(i,-1);
+            }
+            //загрузка самой правой колонки
+            LoadRow(Buffer.GetLength(1)-1);
+        }
+
+        /// <summary>
+        /// Перемещение буффера в общей сетке секторов влево на один сектор
+        /// </summary>
+        public void MoveRight(){
+            SaveColumn(0);
+            BufferStart[0]++;
+            //Смещение всех колонок вправо на 1 слева направо
+            for (int i = 1; i < Buffer.GetLength(0); i++)
+            {
+                ShiftColumn(i,-1);
+            }
+            //загрузка самой правой колонки
+            LoadColumn(Buffer.GetLength(0)-1);
+        }
+
+        /// <summary>
+        /// Перемещение буффера в общей сетке секторов влево на один сектор
+        /// </summary>
+        public void MoveDown(){
+            SaveRow(Buffer.GetLength(1)-1);
+            BufferStart[1]--;
+            //Смещение всех строк влево на 1 вправа налево
+            for (int i = Buffer.GetLength(1)-2; i >= 0; i--)
+            {
+                ShiftRow(i,1);
+            }
+            //загрузка самой левой колонки
+            LoadRow(0);
         }
     }
 
