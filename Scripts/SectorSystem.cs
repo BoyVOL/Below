@@ -13,12 +13,16 @@ namespace MapSystem{
 
         Vector2 Coords;
 
-        public Sector(int Size){
+        public readonly float CellSize;
+
+        public Sector(int Size,float cellSize){
             Cells = new MapCell[Size,Size];
+            CellSize = cellSize;
         }
 
-        public Sector(MapCell[,] cells){
+        public Sector(MapCell[,] cells,float cellSize){
             Cells = cells;
+            CellSize = cellSize;
         }
 
         public string StringContent(){
@@ -43,6 +47,30 @@ namespace MapSystem{
                 }
             }
         }
+
+        /// <summary>
+        /// Выделяет из координат относительно начала сектора ту часть, которая отвечает за расположение точки внутри ячейки
+        /// </summary>
+        /// <param name="Pos"></param>
+        /// <returns></returns>
+        public Vector2 GetCoordsInsideCell(Vector2 Pos){
+            return new Vector2(
+                Pos.x%CellSize,
+                Pos.y%CellSize
+            );
+        }
+
+        /// <summary>
+        /// Метод, позволяющий определить индекс ячейки по координатам относительно начала сектора
+        /// </summary>
+        /// <param name="Pos"></param>
+        /// <returns></returns>
+        public int[] GetCellID(Vector2 Pos){
+            return new int[] {
+                (int)Math.Truncate((decimal)(Pos.x/CellSize)),
+                (int)Math.Truncate((decimal)(Pos.y/CellSize))
+                };
+        }
     }
 
     /// <summary>
@@ -56,6 +84,10 @@ namespace MapSystem{
         /// <value></value>
         public int[] BufferStart = new int[] {0,0};
         public Sector[,] Buffer = new Sector[3,3];
+
+        public SectorBuffer(float cellSize) : base(cellSize){
+
+        }
 
         /// <summary>
         /// Загружает буффер секторами вокруг общего центра
@@ -285,8 +317,14 @@ namespace MapSystem{
     /// </summary>
     public class SectorLoader{
         public SupersectorFile Data;
+
+        public readonly float CellSize;
         
         public SectorDict SuperSecDict = new SectorDict();
+
+        public SectorLoader(float cellSize){
+            CellSize = cellSize;
+        }
 
         /// <summary>
         /// Метод для получения сектора по указанным координатам относительно общей сетки секторов, из общей системы файлов
@@ -301,7 +339,7 @@ namespace MapSystem{
             if(SuperSecDict.TryGetValue(SuperSecDict.KeyFromPos(SSC[0],SSC[1]),out Buff)){
                 long ID = Buff.filePos;
                 ID+=Data.GetIDShift(ISC[0],ISC[1]);
-                return new Sector(Data.ReadSector(ID));
+                return new Sector(Data.ReadSector(ID),CellSize);
             }
             else throw new Exception("There's no supersector with coords "+SSC[0]+" "+SSC[1]);
         }

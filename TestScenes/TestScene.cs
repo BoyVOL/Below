@@ -5,7 +5,7 @@ using MapSystem;
 public class TestScene : Node2D
 {
     Random RND = new Random();
-    Sector Map = new Sector(100);
+    Sector Map = new Sector(100,1);
 
     FileDialog Dialog;
 

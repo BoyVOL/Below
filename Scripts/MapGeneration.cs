@@ -37,7 +37,7 @@ namespace MapSystem{
                     Result[i,j] = BaseSectorData();
                 }
             }
-            GD.Print(new Sector(Result[0,0]).StringContent());
+            GD.Print(new Sector(Result[0,0],1).StringContent());
             return Result;
         }
 
