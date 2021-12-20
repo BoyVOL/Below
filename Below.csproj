@@ -17,5 +17,7 @@
     <Content Include="TestScenes\MapGeneration.cs" />
     <Content Include="TestScenes\MapGen.cs" />
     <Content Include="Scripts\CollisionSystem.cs" />
+    <Content Include="TestScenes\CollisionTest.cs" />
+    <Content Include="Scripts\WorldController.cs" />
   </ItemGroup>
 </Project>

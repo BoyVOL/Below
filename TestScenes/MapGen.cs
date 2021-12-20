@@ -12,11 +12,19 @@ public class MapGen : Node2D
     // Called when the node enters the scene tree for the first time.
 
     public void GenerateSupersectors(int Size){
-        for (int i = 0; i < Size; i++)
+        Gen.GenerateSupersector(0,0);
+        for (int i = 1; i < Size; i++)
         {
-            for (int j = 0; j < Size; j++)
+            Gen.GenerateSupersector(i,0);
+            Gen.GenerateSupersector(-i,0);
+            for (int j = 1; j < Size; j++)
             {
                 Gen.GenerateSupersector(i,j);
+                Gen.GenerateSupersector(-i,j);
+                Gen.GenerateSupersector(0,j);
+                Gen.GenerateSupersector(i,-j);
+                Gen.GenerateSupersector(-i,-j);
+                Gen.GenerateSupersector(0,-j);
             }
         }
     }

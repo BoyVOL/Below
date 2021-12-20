@@ -79,11 +79,63 @@ namespace MapSystem{
     public class SectorBuffer : SectorLoader{
         
         /// <summary>
-        /// Начальная точка буффера - верхняя левая точка
+        /// Начальная точка буффера - верхняя левая точка в координатах сетки секторов
         /// </summary>
         /// <value></value>
         public int[] BufferStart = new int[] {0,0};
         public Sector[,] Buffer = new Sector[3,3];
+
+        /// <summary>
+        /// Метод, возвращающий центральный сектор среди загруженных
+        /// </summary>
+        /// <returns></returns>
+        public Sector GetCenterSector(){
+            return Buffer[Buffer.GetLength(0)/2,Buffer.GetLength(1)/2];
+        }
+
+        /// <summary>
+        /// Метод, возвращающий центральный сектор среди загруженных
+        /// </summary>
+        /// <returns></returns>
+        public int[] GetCenterCoords(){
+            return new int[] {Buffer.GetLength(0)/2, Buffer.GetLength(1)/2};
+        }
+
+        public int[] GetCenterGlobCoords(){
+            int[] Center = GetCenterCoords();
+            return new int[] {BufferStart[0] + Center[0], BufferStart[1] + Center[1]};
+        }
+
+        /// <summary>
+        /// Метод, смещающий буффер к нужным координатам
+        /// </summary>
+        public void ShiftTo(Vector2 Pos){
+            int ShiftX = SectorGlobCoords(Pos)[0] - GetCenterGlobCoords()[0];
+            int ShiftY = SectorGlobCoords(Pos)[1] - GetCenterGlobCoords()[1];
+            if(ShiftX > 0){
+                for (int i = 0; i < ShiftX; i++)
+                {
+                    MoveRight();
+                }
+            } else {
+                for (int i = ShiftX; i < 0; i++)
+                {
+                    MoveLeft();
+                }
+            }
+            if(ShiftY > 0){
+                for (int i = 0; i < ShiftY; i++)
+                {
+                    MoveUp();
+                }
+            } else {
+                for (int i = ShiftY; i < 0; i++)
+                {
+                    MoveDown();
+                }
+            }
+            GD.Print(" NewStart = ",BufferStart[0],BufferStart[1]);
+        }
 
         public SectorBuffer(float cellSize) : base(cellSize){
 
@@ -333,15 +385,18 @@ namespace MapSystem{
         /// <returns></returns>
         public Sector GetSector(int[] Pos){
             int[] SSC = SupSecCoords(Pos);
+            GD.Print("SSC = ",SSC[0], SSC[1]);
             int[] ISC = InSectorCoords(Pos);
+            GD.Print("ISC = ",ISC[0], ISC[1]);
             SuperSectorData Buff;
             //Проверка на наличие суперсектора в файле
             if(SuperSecDict.TryGetValue(SuperSecDict.KeyFromPos(SSC[0],SSC[1]),out Buff)){
                 long ID = Buff.filePos;
+                GD.Print(Pos[0], Pos[1], Buff.filePos);
                 ID+=Data.GetIDShift(ISC[0],ISC[1]);
                 return new Sector(Data.ReadSector(ID),CellSize);
             }
-            else throw new Exception("There's no supersector with coords "+SSC[0]+" "+SSC[1]);
+            else throw new Exception("There's no supersector with coords "+SSC[0]+" "+SSC[1]+" "+SuperSecDict.KeyFromPos(SSC[0],SSC[1]));
         }
 
         /// <summary>
@@ -362,26 +417,39 @@ namespace MapSystem{
         }
 
         /// <summary>
+        /// Метод, возвращающий глобальные координаты сектора, основываясь на его положении
+        /// </summary>
+        /// <param name="Pos"></param>
+        /// <returns></returns>
+        public int[] SectorGlobCoords(Vector2 Pos){
+            return new int[] {
+                (int)Math.Truncate(Pos.x/(Data.SectorSize*CellSize)),
+                (int)Math.Truncate(Pos.y/(Data.SectorSize*CellSize))
+                };
+        }
+
+        /// <summary>
         /// Метод получения координат суперсектора на основе координат сектора
         /// </summary>
         /// <param name="SectGlobCoords">положение сектора в глобальной сетке секторов, суперсектор которого надо определить</param>
         /// <returns></returns>
         public int[] SupSecCoords(int[] SectGlobCoords){
             return new int[] {
-                (int)Math.Truncate((decimal)SectGlobCoords[0]/Data.SupersectorSize),
-                (int)Math.Truncate((decimal)SectGlobCoords[1]/Data.SupersectorSize)
+                (int)Math.Floor((decimal)SectGlobCoords[0]/Data.SupersectorSize),
+                (int)Math.Floor((decimal)SectGlobCoords[1]/Data.SupersectorSize)
                 };
         }
 
         /// <summary>
-        /// Метод преобразовывающий глобальные координаты сектора в сетке секторов в координаты сектора внутри сегмента
+        /// Метод преобразовывающий глобальные координаты сектора в сетке секторов в координаты сектора внутри суперсектора
         /// </summary>
         /// <param name="SectGlobCoords"></param>
         /// <returns></returns>
         public int[] InSectorCoords(int[] SectGlobCoords){
+            int [] SSC = SupSecCoords(SectGlobCoords);
             return new int[] {
-                (int)SectGlobCoords[0]%Data.SupersectorSize,
-                (int)SectGlobCoords[1]%Data.SupersectorSize
+                (int)SectGlobCoords[0] - SSC[0] * Data.SupersectorSize,
+                (int)SectGlobCoords[1] - SSC[1] * Data.SupersectorSize
                 };
         }
     }

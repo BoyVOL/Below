@@ -2,8 +2,16 @@ using Godot;
 
 namespace MapSystem
 {
+
     /// <summary>
-    /// Абстрактный класс для определения сетки коллизий
+    /// Контроллер коллизий
+    /// </summary>
+    public class CollController{
+        
+    }
+
+    /// <summary>
+    /// Абстрактный класс для определения сетки коллизий с глобальной картой
     /// </summary>
     public abstract class CollGrid{
 
@@ -47,6 +55,13 @@ namespace MapSystem
                     CalcCollision(i,j);
                 }
             }
+        }
+    }
+
+    public class TestGrid : CollGrid{
+        
+        public override void CalcCollision(int Xid, int Yid){
+
         }
     }
 }

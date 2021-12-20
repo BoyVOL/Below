@@ -48,6 +48,7 @@ namespace MapSystem{
         public void GenerateSupersector(int x, int y){
             long LastID = Data.GetLength();
             GD.Print(LastID);
+            GD.Print(Dict.KeyFromPos(x,y));
             Data.WriteSupersector(SupersectorBase(),LastID);
             SuperSectorData sectorData = new SuperSectorData();
             sectorData.filePos = LastID;
