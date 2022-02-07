@@ -4,6 +4,9 @@ using System;
 
 namespace MapSystem{
 
+    /// <summary>
+    /// Глобальный контроллер мира игры
+    /// </summary>
     public class WorldController{
 
         public SectorBuffer Buffer;

@@ -1,11 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "q5Lz4Lo0V3rlyWyEb3EdKBPEQwqqu/othkm2YMnVslYKkRzlHPEc4P1c9dT2TCQ96VsZEFeUfXXZdOYaKdJR0w==",
+  "dgSpecHash": "iW+ofZa8OMePAS9UsrnkBMfmnbrW8REqU9mflDMnRewlyfkwSJWlcVIvB4RBiWQ6UW7mUW72sOOdaaMP3SBL8Q==",
   "success": true,
-  "projectFilePath": "C:\\Users\\ADMINMINSPORT\\Documents\\GitHub\\Below\\Below.csproj",
-  "expectedPackageFiles": [
-    "C:\\Users\\ADMINMINSPORT\\.nuget\\packages\\microsoft.netframework.referenceassemblies\\1.0.0\\microsoft.netframework.referenceassemblies.1.0.0.nupkg.sha512",
-    "C:\\Users\\ADMINMINSPORT\\.nuget\\packages\\microsoft.netframework.referenceassemblies.net472\\1.0.0\\microsoft.netframework.referenceassemblies.net472.1.0.0.nupkg.sha512"
-  ],
+  "projectFilePath": "C:\\Users\\limonovvo\\Documents\\GitHub\\Below\\Below.csproj",
+  "expectedPackageFiles": [],
   "logs": []
 }
