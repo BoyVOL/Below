@@ -35,14 +35,6 @@ namespace MapSystem{
             Buffer.LoadBuffer();
             Buffer.BufferStart = new int[] {Startx,StartY};
         }
-
-        /// <summary>
-        /// Мето для обновления мира игры
-        /// </summary>
-        /// <param name="Delta"></param>
-        public void Update(float Delta){
-
-        }
     }
 
 }
