@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System;
 
 namespace MapSystem{
+
     /// <summary>
     /// Класс, отвечающий за загрузку части карты в игре
     /// </summary>
@@ -47,29 +48,48 @@ namespace MapSystem{
                 }
             }
         }
+    }
+
+    /// <summary>
+    /// Класс для преобразования координат
+    /// </summary>
+    public class CoordTranslator{
 
         /// <summary>
-        /// Выделяет из координат относительно начала сектора ту часть, которая отвечает за расположение точки внутри ячейки
+        /// Размер одной ячейки сетки
         /// </summary>
-        /// <param name="Pos"></param>
-        /// <returns></returns>
-        public Vector2 GetCoordsInsideCell(Vector2 Pos){
-            return new Vector2(
-                Pos.x%CellSize,
-                Pos.y%CellSize
-            );
+        public readonly int CellSize = 0;
+
+        /// <summary>
+        /// Размер сектора
+        /// </summary>
+        public readonly int SectorSize = 0;
+
+        /// <summary>
+        /// количество секторов в суперсекторе
+        /// </summary>
+        public readonly int SupersectorSize = 0;
+
+        /// <summary>
+        /// Конструктор с задаваемыми параметрами
+        /// </summary>
+        /// <param name="cellSize">размер ячейки в сетке</param>
+        /// <param name="sectorSize">количество ячеек в секторе</param>
+        /// <param name="supersectorSize">количество секторов в суперсекторе</param>
+        public CoordTranslator(int cellSize, int sectorSize, int supersectorSize){
+            CellSize = cellSize;
+            SectorSize = sectorSize;
+            SupersectorSize = supersectorSize;
         }
 
         /// <summary>
-        /// Метод, позволяющий определить индекс ячейки по координатам относительно начала сектора
+        /// Конструктор копирования
         /// </summary>
-        /// <param name="Pos"></param>
-        /// <returns></returns>
-        public int[] GetCellID(Vector2 Pos){
-            return new int[] {
-                (int)Math.Truncate((decimal)(Pos.x/CellSize)),
-                (int)Math.Truncate((decimal)(Pos.y/CellSize))
-                };
+        /// <param name="Other">Другой транслятор координат, с которого нужно сделать копию</param>
+        public CoordTranslator(CoordTranslator Other){
+            CellSize = Other.CellSize;
+            SectorSize = Other.SectorSize;
+            SupersectorSize = Other.SupersectorSize;
         }
     }
 
@@ -83,6 +103,9 @@ namespace MapSystem{
         /// </summary>
         /// <value></value>
         public int[] BufferStart = new int[] {0,0};
+        /// <summary>
+        /// Массив секторов буффера
+        /// </summary>
         public Sector[,] Buffer = new Sector[3,3];
 
         /// <summary>
@@ -101,17 +124,29 @@ namespace MapSystem{
             return new int[] {Buffer.GetLength(0)/2, Buffer.GetLength(1)/2};
         }
 
+        public string StringContent(){
+            string Result = "";
+            for (int i = 0; i < Buffer.GetLength(0); i++)
+            {
+                for (int j = 0; j < Buffer.GetLength(1); j++)
+                {
+                    Result += Buffer[i,j].StringContent()+"\n";
+                }
+            }
+            return Result;
+        }
+
         public int[] GetCenterGlobCoords(){
             int[] Center = GetCenterCoords();
             return new int[] {BufferStart[0] + Center[0], BufferStart[1] + Center[1]};
         }
 
         /// <summary>
-        /// Метод, смещающий буффер к нужным координатам
+        /// Метод, смещающий центр буффера к нужным координатам
         /// </summary>
         public void ShiftTo(Vector2 Pos){
-            int ShiftX = SectorGlobCoords(Pos)[0] - GetCenterGlobCoords()[0];
-            int ShiftY = SectorGlobCoords(Pos)[1] - GetCenterGlobCoords()[1];
+            int ShiftX = SectorIncludes(Pos)[0] - GetCenterGlobCoords()[0];
+            int ShiftY = SectorIncludes(Pos)[1] - GetCenterGlobCoords()[1];
             if(ShiftX > 0){
                 for (int i = 0; i < ShiftX; i++)
                 {
@@ -135,10 +170,13 @@ namespace MapSystem{
                 }
             }
             GD.Print(" NewStart = ",BufferStart[0],BufferStart[1]);
+            GD.Print(" NewCenter = ",GetCenterGlobCoords()[0],GetCenterGlobCoords()[1]);
+            Vector2 Temp = SectorStartVector(BufferStart);
+            GD.Print(" NewStartVector = ",Temp.x," ",Temp.y);
         }
 
-        public SectorBuffer(float cellSize) : base(cellSize){
-
+        public SectorBuffer(float cellSize, int arraySize) : base(cellSize){
+            Buffer = new Sector[arraySize,arraySize];
         }
 
         /// <summary>
@@ -368,6 +406,7 @@ namespace MapSystem{
     /// Класс для управления загрузкой секторов и их содержимого
     /// </summary>
     public class SectorLoader{
+
         public SupersectorFile Data;
 
         public readonly float CellSize;
@@ -417,14 +456,24 @@ namespace MapSystem{
         }
 
         /// <summary>
-        /// Метод, возвращающий глобальные координаты сектора, основываясь на его положении
+        /// Метод, вектор начала сектора, основываясь на его положении в сетке секторов
+        /// </summary>
+        /// <param name="SectorCoords"></param>
+        /// <returns></returns>
+        public Vector2 SectorStartVector(int[] SectorCoords){
+            return new Vector2(Data.Translator.SectorSize*CellSize*SectorCoords[0],
+            Data.Translator.SectorSize*CellSize*SectorCoords[1]);
+        }
+
+        /// <summary>
+        /// Метод, возвращающий координаты сектора, включающего данные координаты, сетке секторов.
         /// </summary>
         /// <param name="Pos"></param>
         /// <returns></returns>
-        public int[] SectorGlobCoords(Vector2 Pos){
+        public int[] SectorIncludes(Vector2 Pos){
             return new int[] {
-                (int)Math.Truncate(Pos.x/(Data.SectorSize*CellSize)),
-                (int)Math.Truncate(Pos.y/(Data.SectorSize*CellSize))
+                (int)Math.Truncate(Pos.x/(Data.Translator.SectorSize*CellSize)),
+                (int)Math.Truncate(Pos.y/(Data.Translator.SectorSize*CellSize))
                 };
         }
 
@@ -435,8 +484,8 @@ namespace MapSystem{
         /// <returns></returns>
         public int[] SupSecCoords(int[] SectGlobCoords){
             return new int[] {
-                (int)Math.Floor((decimal)SectGlobCoords[0]/Data.SupersectorSize),
-                (int)Math.Floor((decimal)SectGlobCoords[1]/Data.SupersectorSize)
+                (int)Math.Floor((decimal)SectGlobCoords[0]/Data.Translator.SupersectorSize),
+                (int)Math.Floor((decimal)SectGlobCoords[1]/Data.Translator.SupersectorSize)
                 };
         }
 
@@ -448,9 +497,34 @@ namespace MapSystem{
         public int[] InSectorCoords(int[] SectGlobCoords){
             int [] SSC = SupSecCoords(SectGlobCoords);
             return new int[] {
-                (int)SectGlobCoords[0] - SSC[0] * Data.SupersectorSize,
-                (int)SectGlobCoords[1] - SSC[1] * Data.SupersectorSize
+                (int)SectGlobCoords[0] - SSC[0] * Data.Translator.SupersectorSize,
+                (int)SectGlobCoords[1] - SSC[1] * Data.Translator.SupersectorSize
                 };
         }
+    
+        /// <summary>
+        /// Выделяет из координат относительно начала сектора ту часть, которая отвечает за расположение точки внутри ячейки
+        /// </summary>
+        /// <param name="Pos"></param>
+        /// <returns></returns>
+        public Vector2 GetCoordsInsideCell(Vector2 Pos){
+            return new Vector2(
+                Pos.x%CellSize,
+                Pos.y%CellSize
+            );
+        }
+
+        /// <summary>
+        /// Метод, позволяющий определить индекс ячейки по координатам относительно начала сектора
+        /// </summary>
+        /// <param name="Pos"></param>
+        /// <returns></returns>
+        public int[] GetCellInSector(Vector2 Pos){
+            return new int[] {
+                (int)Math.Truncate((decimal)(Pos.x/CellSize)),
+                (int)Math.Truncate((decimal)(Pos.y/CellSize))
+                };
+        }
+    
     }
 }

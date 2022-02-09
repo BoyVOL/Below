@@ -8,7 +8,7 @@ public class TestScene2 : Node2D
         GD.Print(Loader.SupSecCoords(input)[0],",",Loader.SupSecCoords(input)[1]);
         GD.Print(Loader.InSectorCoords(input)[0],",",Loader.InSectorCoords(input)[1]);
     }
-    SectorBuffer Loader = new SectorBuffer(1);
+    SectorBuffer Loader = new SectorBuffer(1,3);
 
     // Declare member variables here. Examples:
     // private int a = 2;

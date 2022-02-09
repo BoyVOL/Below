@@ -11,8 +11,8 @@ namespace MapSystem{
 
         public SectorBuffer Buffer;
 
-        void InitBuffer(string SecDataFileName, string SupSectDictFileName, float cellSize, int SectorSize){
-            Buffer = new SectorBuffer(cellSize);
+        void InitBuffer(string SecDataFileName, string SupSectDictFileName, float cellSize, int BufferSize, int SectorSize){
+            Buffer = new SectorBuffer(cellSize,BufferSize);
             SectorRecordsFile Sectors = new SectorRecordsFile();
             SupersectorFile SupSectors = new SupersectorFile(SectorSize,SectorSize);
             Sectors.FilePath = SupSectDictFileName;
@@ -21,8 +21,12 @@ namespace MapSystem{
             Buffer.SuperSecDict.Records = Sectors;
         }
 
-        public WorldController(string SecDataFileName, string SupSectDictFileName, float cellSize, int SectorSize){
-            InitBuffer(SecDataFileName, SupSectDictFileName, cellSize, SectorSize);
+        void ResizeBuffer(){
+
+        }
+
+        public WorldController(string SecDataFileName, string SupSectDictFileName, float cellSize, int BufferSize, int SectorSize){
+            InitBuffer(SecDataFileName, SupSectDictFileName, cellSize, BufferSize, SectorSize);
         }
 
         /// <summary>

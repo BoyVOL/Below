@@ -13,11 +13,15 @@ namespace MapSystem
     /// <summary>
     /// Абстрактный класс для определения сетки коллизий с глобальной картой
     /// </summary>
-    public abstract class CollGrid{
+    public class CollGrid{
 
-        public Vector2 Position;
+        public Sector[,] CurrentSector = new Sector[3,3];
 
-        public float Rotation;
+        /// <summary>
+        /// Текущее положение сетки коллизии в секторе.
+        /// </summary>
+        /// <returns></returns>
+        public Transform2D Transform = new Transform2D();
 
         /// <summary>
         /// Массив размеров сетки коллизий
@@ -31,16 +35,18 @@ namespace MapSystem
         /// </summary>
         /// <param name="Xid"></param>
         /// <param name="Yid"></param>
-        public abstract void CalcCollision(int Xid, int Yid);
+        public virtual void CalcCollision(int Xid, int Yid){
+
+        }
 
         /// <summary>
-        /// Метод, возвращающий глобальные координаты по указанным индексам
+        /// Метод, возвращающий координаты по указанным индексам
         /// </summary>
         /// <param name="Xid"></param>
         /// <param name="Yid"></param>
         /// <returns></returns>
         public Vector2 GetCoords(int Xid, int Yid){
-            Vector2 Result = new Vector2(Position.x+Xid*CellSize, Position.y+Yid*CellSize).Rotated(Rotation);
+            Vector2 Result = Transform * new Vector2(Xid*CellSize,Yid*CellSize);
             return Result;
         }
 
