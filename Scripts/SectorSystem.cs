@@ -296,6 +296,8 @@ namespace MapSystem{
             //загрузка самой левой колонки
             LoadRow(0);
         }
+    
+
     }
 
     /// <summary>
@@ -482,6 +484,5 @@ namespace MapSystem{
                 (int)Math.Truncate((decimal)(Pos.y/CellSize))
                 };
         }
-    
     }
 }
