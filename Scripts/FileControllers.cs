@@ -68,16 +68,13 @@ namespace MapSystem{
     /// </summary>
     public class CellMapFile : ByteFile{
 
-        /// <summary>
-        /// Объект преобразования координат
-        /// </summary>
-        public CoordTranslator Translator;
+        public readonly int SectorSize;
 
         public readonly int SectorByteSize;
 
         public CellMapFile(int sectorSize){
-            Translator = new CoordTranslator(0,sectorSize,0);
-            SectorByteSize = Translator.SectorSize*Translator.SectorSize*MapCell.ByteLength;
+            SectorSize = sectorSize;
+            SectorByteSize = SectorSize*SectorSize*MapCell.ByteLength;
         }
 
         /// <summary>
@@ -87,11 +84,11 @@ namespace MapSystem{
         /// <returns></returns>
         public MapCell[,] ReadSector(long id){
             byte[] Temp = new byte[MapCell.ByteLength];
-            MapCell[,] Result = new MapCell[Translator.SectorSize,Translator.SectorSize];
+            MapCell[,] Result = new MapCell[SectorSize,SectorSize];
             GetToPos(id);
-            for (int i = 0; i < Translator.SectorSize; i++)
+            for (int i = 0; i < SectorSize; i++)
             {
-                for (int j = 0; j < Translator.SectorSize; j++)
+                for (int j = 0; j < SectorSize; j++)
                 {
                     File.Read(Temp,0,MapCell.ByteLength);
                     Result[i,j] = new MapCell(Temp);
@@ -108,9 +105,9 @@ namespace MapSystem{
         public void WriteSector(MapCell[,] sector, long id){
             byte[] Temp = new byte[MapCell.ByteLength];
             GetToPos(id);
-            for (int i = 0; i < Translator.SectorSize; i++)
+            for (int i = 0; i < SectorSize; i++)
             {
-                for (int j = 0; j < Translator.SectorSize; j++)
+                for (int j = 0; j < SectorSize; j++)
                 {
                     Temp = sector[i,j].ToByte();
                     File.Write(Temp,0,MapCell.ByteLength);
@@ -124,6 +121,8 @@ namespace MapSystem{
     /// </summary>
     public class SupersectorFile : CellMapFile{
 
+        public readonly int SupersectorSize;
+
         private SupersectorFile(int sectorSize): base(sectorSize){
         }
 
@@ -134,7 +133,7 @@ namespace MapSystem{
         /// <param name="supersectorSize">размер стороны суперсектора</param>
         /// <returns></returns>
         public SupersectorFile(int sectorSize, int supersectorSize): base(sectorSize){
-            Translator = new CoordTranslator(0,sectorSize,supersectorSize);
+            SupersectorSize = supersectorSize;
         }
 
         /// <summary>
@@ -144,7 +143,7 @@ namespace MapSystem{
         /// <param name="y">координата y сектора</param>
         /// <returns>индекс чтения/записи в файле</returns>
         public long GetIDShift(int x, int y){
-            return (x*Translator.SupersectorSize+y)*SectorByteSize;
+            return (x*SupersectorSize+y)*SectorByteSize;
         }
 
         /// <summary>
@@ -154,9 +153,9 @@ namespace MapSystem{
         /// <param name="id"></param>
         public void WriteSupersector(MapCell [,][,] data, long id){
             GetToPos(id);
-            for (int i = 0; i < Translator.SupersectorSize; i++)
+            for (int i = 0; i < SupersectorSize; i++)
             { 
-                for (int j = 0; j < Translator.SupersectorSize; j++)
+                for (int j = 0; j < SupersectorSize; j++)
                 {
                     WriteSector(data[i,j],id+GetIDShift(i,j));
                 }
@@ -169,10 +168,10 @@ namespace MapSystem{
         /// <param name="id"></param>
         /// <returns></returns>
         public MapCell [,][,] ReadSupersector(long id){
-            MapCell [,][,] Result = new MapCell[Translator.SupersectorSize, Translator.SupersectorSize][,];
-            for (int i = 0; i < Translator.SupersectorSize; i++)
+            MapCell [,][,] Result = new MapCell[SupersectorSize, SupersectorSize][,];
+            for (int i = 0; i < SupersectorSize; i++)
             { 
-                for (int j = 0; j < Translator.SupersectorSize; j++)
+                for (int j = 0; j < SupersectorSize; j++)
                 {
                     Result[i,j] = ReadSector(id+GetIDShift(i,j));
                 }

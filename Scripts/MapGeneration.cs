@@ -12,10 +12,10 @@ namespace MapSystem{
         /// <returns></returns>
         public MapCell[,] BaseSectorData(){
             Random Rnd = new Random();
-            MapCell[,] Result = new MapCell[Data.Translator.SectorSize,Data.Translator.SectorSize];
-            for (int i = 0; i < Data.Translator.SectorSize; i++)
+            MapCell[,] Result = new MapCell[Data.SectorSize,Data.SectorSize];
+            for (int i = 0; i < Data.SectorSize; i++)
             {
-                for (int j = 0; j < Data.Translator.SectorSize; j++)
+                for (int j = 0; j < Data.SectorSize; j++)
                 {
                     Result[i,j].TileID = (byte)Rnd.Next(0,100);
                 }
@@ -29,10 +29,10 @@ namespace MapSystem{
         /// <param name="x">координата x сектора</param>
         /// <param name="y">координата y сектора</param>
         public MapCell[,][,] SupersectorBase(){
-            MapCell[,][,] Result = new MapCell[Data.Translator.SupersectorSize,Data.Translator.SupersectorSize][,];
-            for (int i = 0; i < Data.Translator.SupersectorSize; i++)
+            MapCell[,][,] Result = new MapCell[Data.SupersectorSize,Data.SupersectorSize][,];
+            for (int i = 0; i < Data.SupersectorSize; i++)
             {
-                for (int j = 0; j < Data.Translator.SupersectorSize; j++)
+                for (int j = 0; j < Data.SupersectorSize; j++)
                 {
                     Result[i,j] = BaseSectorData();
                 }

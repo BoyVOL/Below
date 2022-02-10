@@ -100,8 +100,8 @@ public class TestScene : Node2D
     }
 
     void TestSectorRW(){
-        GlobMap.WriteSector(CreateTestMapCell(GlobMap.Translator.SectorSize),0);
-        GlobMap.WriteSector(CreateTestMapCell(GlobMap.Translator.SectorSize),GlobMap.SectorByteSize);
+        GlobMap.WriteSector(CreateTestMapCell(GlobMap.SectorSize),0);
+        GlobMap.WriteSector(CreateTestMapCell(GlobMap.SectorSize),GlobMap.SectorByteSize);
         GD.Print(GlobMap.ReadSector(GlobMap.SectorByteSize)[0,0].TileID);
         GD.Print(GlobMap.ReadSector(GlobMap.SectorByteSize)[99,99].TileID);
         GD.Print(GlobMap.ReadSector(GlobMap.SectorByteSize).GetLength(0));

@@ -51,49 +51,6 @@ namespace MapSystem{
     }
 
     /// <summary>
-    /// Класс для преобразования координат
-    /// </summary>
-    public class CoordTranslator{
-
-        /// <summary>
-        /// Размер одной ячейки сетки
-        /// </summary>
-        public readonly int CellSize = 0;
-
-        /// <summary>
-        /// Размер сектора
-        /// </summary>
-        public readonly int SectorSize = 0;
-
-        /// <summary>
-        /// количество секторов в суперсекторе
-        /// </summary>
-        public readonly int SupersectorSize = 0;
-
-        /// <summary>
-        /// Конструктор с задаваемыми параметрами
-        /// </summary>
-        /// <param name="cellSize">размер ячейки в сетке</param>
-        /// <param name="sectorSize">количество ячеек в секторе</param>
-        /// <param name="supersectorSize">количество секторов в суперсекторе</param>
-        public CoordTranslator(int cellSize, int sectorSize, int supersectorSize){
-            CellSize = cellSize;
-            SectorSize = sectorSize;
-            SupersectorSize = supersectorSize;
-        }
-
-        /// <summary>
-        /// Конструктор копирования
-        /// </summary>
-        /// <param name="Other">Другой транслятор координат, с которого нужно сделать копию</param>
-        public CoordTranslator(CoordTranslator Other){
-            CellSize = Other.CellSize;
-            SectorSize = Other.SectorSize;
-            SupersectorSize = Other.SupersectorSize;
-        }
-    }
-
-    /// <summary>
     /// Класс для подгрузки и управления загруженными секторами
     /// </summary>
     public class SectorBuffer : SectorLoader{
@@ -461,8 +418,8 @@ namespace MapSystem{
         /// <param name="SectorCoords"></param>
         /// <returns></returns>
         public Vector2 SectorStartVector(int[] SectorCoords){
-            return new Vector2(Data.Translator.SectorSize*CellSize*SectorCoords[0],
-            Data.Translator.SectorSize*CellSize*SectorCoords[1]);
+            return new Vector2(Data.SectorSize*CellSize*SectorCoords[0],
+            Data.SectorSize*CellSize*SectorCoords[1]);
         }
 
         /// <summary>
@@ -472,8 +429,8 @@ namespace MapSystem{
         /// <returns></returns>
         public int[] SectorIncludes(Vector2 Pos){
             return new int[] {
-                (int)Math.Truncate(Pos.x/(Data.Translator.SectorSize*CellSize)),
-                (int)Math.Truncate(Pos.y/(Data.Translator.SectorSize*CellSize))
+                (int)Math.Truncate(Pos.x/(Data.SectorSize*CellSize)),
+                (int)Math.Truncate(Pos.y/(Data.SectorSize*CellSize))
                 };
         }
 
@@ -484,8 +441,8 @@ namespace MapSystem{
         /// <returns></returns>
         public int[] SupSecCoords(int[] SectGlobCoords){
             return new int[] {
-                (int)Math.Floor((decimal)SectGlobCoords[0]/Data.Translator.SupersectorSize),
-                (int)Math.Floor((decimal)SectGlobCoords[1]/Data.Translator.SupersectorSize)
+                (int)Math.Floor((decimal)SectGlobCoords[0]/Data.SupersectorSize),
+                (int)Math.Floor((decimal)SectGlobCoords[1]/Data.SupersectorSize)
                 };
         }
 
@@ -497,8 +454,8 @@ namespace MapSystem{
         public int[] InSectorCoords(int[] SectGlobCoords){
             int [] SSC = SupSecCoords(SectGlobCoords);
             return new int[] {
-                (int)SectGlobCoords[0] - SSC[0] * Data.Translator.SupersectorSize,
-                (int)SectGlobCoords[1] - SSC[1] * Data.Translator.SupersectorSize
+                (int)SectGlobCoords[0] - SSC[0] * Data.SupersectorSize,
+                (int)SectGlobCoords[1] - SSC[1] * Data.SupersectorSize
                 };
         }
     
