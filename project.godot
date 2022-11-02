@@ -11,8 +11,12 @@ config_version=4
 [application]
 
 config/name="Below"
-run/main_scene="res://TestScenes/CollisionTest.tscn"
+run/main_scene="res://TestScenes/TestScene3.tscn"
 config/icon="res://icon.png"
+
+[editor_plugins]
+
+enabled=PoolStringArray( "res://addons/PhysPolygon/plugin.cfg" )
 
 [physics]
 
