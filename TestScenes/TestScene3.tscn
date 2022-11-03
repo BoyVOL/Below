@@ -1,3 +1,10 @@
-[gd_scene format=2]
+[gd_scene load_steps=2 format=2]
+
+[ext_resource path="res://icon.png" type="Texture" id=1]
 
 [node name="Node2D" type="Node2D"]
+
+[node name="Polygon2D" type="Polygon2D" parent="."]
+position = Vector2( 1, 161 )
+texture = ExtResource( 1 )
+polygon = PoolVector2Array( 89, -133, 473, 115, 542, 445, 71, 168 )
