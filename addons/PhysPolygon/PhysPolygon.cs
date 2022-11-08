@@ -21,11 +21,11 @@ public class PhysPolygon : EditorPlugin
     // Called when the node enters the scene tree for the first time.
     public override void _EnterTree()
     {
-        
+        AddCustomType("TestPolygon2D","Polygon2D");
     }
 
     public override void _ExitTree(){
-        
+        RemoveCustomType("TestPolygon2D");
     }
 
 //  // Called every frame. 'delta' is the elapsed time since the previous frame.

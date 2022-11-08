@@ -1,10 +1,10 @@
 [gd_scene load_steps=2 format=2]
 
-[ext_resource path="res://icon.png" type="Texture" id=1]
+[ext_resource path="res://addons/PhysPolygon/TestPolygon2D/TestPolygon2D.cs" type="Script" id=1]
 
 [node name="Node2D" type="Node2D"]
 
-[node name="Polygon2D" type="Polygon2D" parent="."]
-position = Vector2( 1, 161 )
-texture = ExtResource( 1 )
-polygon = PoolVector2Array( 89, -133, 473, 115, 542, 445, 71, 168 )
+[node name="TestPolygon2D" type="Polygon2D" parent="."]
+position = Vector2( 351, 170 )
+polygon = PoolVector2Array( 292, 125, 186, -76, -110, 81, 184, 274 )
+script = ExtResource( 1 )
