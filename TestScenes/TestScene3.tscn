@@ -5,6 +5,6 @@
 [node name="Node2D" type="Node2D"]
 
 [node name="TestPolygon2D" type="Polygon2D" parent="."]
-position = Vector2( 351, 170 )
+position = Vector2( 254, 136 )
 polygon = PoolVector2Array( 292, 125, 186, -76, -110, 81, 184, 274 )
 script = ExtResource( 1 )
